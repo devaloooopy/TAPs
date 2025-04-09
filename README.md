@@ -62,9 +62,32 @@ This project provides a public vCard template sharing URL feature for the TAPs m
 2. Create a new project on [Vercel](https://vercel.com)
 3. Import your Git repository
 4. Configure environment variables in the Vercel dashboard:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-5. Deploy!
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+5. Deploy using the Vercel CLI:
+   ```bash
+   # Install Vercel CLI if you haven't already
+   npm install -g vercel
+   
+   # Deploy to production
+   vercel --prod
+   
+   # If you need debugging output
+   vercel --prod --debug
+   ```
+   
+   Note: When using environment variables with the `-e` flag, always provide a value:
+   ```bash
+   vercel --prod -e KEY=VALUE
+   ```
+
+### Troubleshooting Deployment Issues
+
+- **Build Errors**: If you encounter build errors, run `npm run build` locally first to identify issues.
+- **Environment Variables**: Ensure all required environment variables are set in the Vercel project settings.
+- **Naming Conflicts**: Avoid naming conflicts with Next.js built-in functions (like `notFound`).
+- **Vercel Logs**: Check deployment logs with `vercel logs [deployment-url]` for detailed error information.
+- **Project Linking**: If your project was deleted or transferred, you may need to relink it with `vercel link`.
 
 ## Supabase Configuration
 

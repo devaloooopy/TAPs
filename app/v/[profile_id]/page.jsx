@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import VCardComponent from '@/components/VCardComponent';
-import { getProfileById, getSocialLinksById, getTemplateById } from '@/lib/supabase';
+import VCardComponent from '../../../components/VCardComponent';
+import { getProfileById, getSocialLinksById, getTemplateById } from '/Users/mac/Documents/TAP /TAPs/app/lib/supabase.js';
 
 // Enable dynamic rendering for this route
 export const dynamic = 'force-dynamic';
@@ -71,8 +71,8 @@ export default async function ProfilePage({ params }) {
   );
 }
 
-// Create a not-found page
-export function notFound() {
+// Create a custom not-found page component
+export function CustomNotFoundPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center p-8 max-w-md bg-white rounded-lg shadow-md">
