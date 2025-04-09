@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import VCardComponent from '../../../components/VCardComponent.jsx';
 import { createClient } from '@supabase/supabase-js';
-import { generateVCard } from '../../../utils/vcard.js';
 
 // Create Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || 'https://twevckswrtmufxxbhega.supabase.co';
