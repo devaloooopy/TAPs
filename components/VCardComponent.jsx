@@ -69,17 +69,36 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
   const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
   const shareSheetRef = useRef(null);
   
-  // Helper function to determine contrasting text color for backgrounds
+  // Enhanced helper function to determine contrasting text color for backgrounds
+  // More robust implementation similar to VCardTemplate.js
   const getContrastingTextColor = (bgColor) => {
     if (!bgColor) return '#FFFFFF';
     try {
-      const color = bgColor.startsWith('#') ? bgColor.substring(1) : bgColor;
-      const rgb = parseInt(color, 16);
-      const r = rgb >> 16 & 0xff;
-      const g = rgb >> 8 & 0xff;
-      const b = rgb >> 0 & 0xff;
+      // Handle colors with or without # prefix
+      let color = bgColor;
+      if (color.startsWith('#')) {
+        color = color.substring(1);
+      }
+      
+      // Handle shorthand hex (e.g., #FFF)
+      if (color.length === 3) {
+        color = color.split('').map(c => c + c).join('');
+      }
+      
+      // Parse RGB components
+      const r = parseInt(color.substring(0, 2), 16);
+      const g = parseInt(color.substring(2, 4), 16);
+      const b = parseInt(color.substring(4, 6), 16);
+      
+      // Check if parsing was successful
+      if (isNaN(r) || isNaN(g) || isNaN(b)) {
+        return '#FFFFFF';
+      }
+      
       // Formula for perceived brightness (Luma)
+      // Using the same formula as in VCardTemplate.js for consistency
       const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      
       // Use black text on light backgrounds, white text on dark backgrounds
       return luma > 128 ? '#000000' : '#FFFFFF';
     } catch (e) {
@@ -95,13 +114,16 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     return () => clearTimeout(timer);
   }, []);
   
-  // Effect for share sheet animation
+  // Effect for share sheet animation - enhanced with spring animation similar to VCardTemplate.js
   useEffect(() => {
     if (shareSheetRef.current) {
       if (shareOptionsVisible) {
+        // Apply spring-like animation for a more natural feel
+        shareSheetRef.current.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
         shareSheetRef.current.style.transform = 'translateY(0)';
         shareSheetRef.current.style.opacity = '1';
       } else {
+        shareSheetRef.current.style.transition = 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.2s ease';
         shareSheetRef.current.style.transform = 'translateY(100%)';
         shareSheetRef.current.style.opacity = '0';
       }
@@ -308,15 +330,19 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     </div>
   );
 
-  // Render social section with enhanced styling
+  // Render social section with enhanced styling - more similar to VCardTemplate.js
   const renderSocialSection = () => {
     const socialLinks = profile?.social_links || [];
     if (!socialLinks || socialLinks.length === 0) return null;
 
     const iconStyle = template.icon_style || 'circle';
+    const iconContainerSize = 70; // Matching VCardTemplate.js size
+    const iconBorderSize = 1.5;
+    
+    // Get border radius based on icon style - similar to VCardTemplate.js
     const getBorderRadius = (style) => {
-      return style === 'square' ? '0.75rem' : 
-             style === 'rounded' ? '1.25rem' : 
+      return style === 'square' ? '12px' : 
+             style === 'rounded' ? '20px' : 
              '50%';
     };
     
@@ -324,40 +350,60 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     const animationClass = template.enable_animations ? 'transition-transform hover:scale-105' : '';
 
     return (
-      <div className="mb-6 rounded-lg overflow-hidden shadow-md" style={{ backgroundColor: template.background_color }}>
+      <div 
+        className="mb-6 rounded-lg overflow-hidden shadow-md" 
+        style={{ 
+          backgroundColor: template.background_color,
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.12)'
+        }}
+      >
         {renderCardHeader("Connect")}
-        <div className="p-4">
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-            {socialLinks.map((link, index) => (
-              <div 
-                key={index}
-                className={`flex flex-col items-center justify-center p-2 hover:opacity-80 transition-all cursor-pointer ${animationClass}`}
-                onClick={() => handleWebsite(link.url)}
-              >
+        <div className="p-5 pt-6 pb-2"> {/* Adjusted padding to match VCardTemplate.js */}
+          <div className="flex flex-wrap justify-around"> {/* Using flex instead of grid for better matching */}
+            {socialLinks.map((link, index) => {
+              const icon = getSocialIcon(link.platform);
+              
+              return (
                 <div 
-                  className="flex items-center justify-center w-14 h-14 mb-2"
-                  style={{
-                    backgroundColor: 'transparent',
-                    borderWidth: '1.5px',
-                    borderColor: template.primary_color,
-                    borderRadius: getBorderRadius(iconStyle),
-                  }}
+                  key={index}
+                  className={`w-1/3 flex flex-col items-center mb-5 px-1.5 ${animationClass}`}
+                  style={{ maxWidth: '33%' }}
                 >
-                  <div style={{ color: template.primary_color }}>
-                    {getSocialIcon(link.platform)}
-                  </div>
+                  <button
+                    className="flex items-center justify-center mb-2 hover:opacity-80 transition-all cursor-pointer focus:outline-none"
+                    onClick={() => handleWebsite(link.url)}
+                    style={{
+                      width: `${iconContainerSize}px`,
+                      height: `${iconContainerSize}px`,
+                      backgroundColor: 'transparent',
+                      borderWidth: `${iconBorderSize}px`,
+                      borderColor: template.primary_color,
+                      borderRadius: getBorderRadius(iconStyle),
+                      borderStyle: 'solid'
+                    }}
+                  >
+                    <div 
+                      style={{ 
+                        color: template.primary_color,
+                        fontSize: `${iconContainerSize * 0.45}px` 
+                      }}
+                    >
+                      {icon}
+                    </div>
+                  </button>
+                  <span 
+                    className="text-xs text-center truncate w-full font-medium"
+                    style={{ 
+                      color: template.primary_color, 
+                      fontFamily: template.font_family,
+                      marginTop: '2px'
+                    }}
+                  >
+                    {link.platform}
+                  </span>
                 </div>
-                <span 
-                  className="text-xs text-center truncate w-full"
-                  style={{ 
-                    color: template.primary_color, 
-                    fontFamily: template.font_family 
-                  }}
-                >
-                  {link.platform}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -396,23 +442,32 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
           <div className="absolute inset-0 bg-black/20" />
         </div>
 
-        {/* Profile Image */}
+        {/* Profile Image - enhanced to match VCardTemplate.js */}
         <div className="flex justify-center -mt-16 relative z-10">
           {template.show_profile_image && profile.profile_photo_url ? (
-            <img 
-              src={profile.profile_photo_url} 
-              alt={profile.name} 
-              className="w-32 h-32 rounded-full object-cover border-4"
-              style={{ borderColor: template.background_color }}
-            />
+            <div className="rounded-full shadow-lg" style={{ 
+              width: '120px', 
+              height: '120px',
+              boxShadow: '0 6px 12px rgba(0, 0, 0, 0.2)'
+            }}>
+              <img 
+                src={profile.profile_photo_url} 
+                alt={profile.name} 
+                className="w-full h-full rounded-full object-cover border-4"
+                style={{ borderColor: template.background_color }}
+              />
+            </div>
           ) : template.show_profile_image ? (
             <div 
-              className="w-32 h-32 rounded-full flex items-center justify-center text-3xl font-bold border-4"
+              className="rounded-full flex items-center justify-center text-5xl font-bold border-4 shadow-lg"
               style={{ 
+                width: '120px', 
+                height: '120px',
                 background: `linear-gradient(to right, ${template.primary_color}, ${template.secondary_color || template.primary_color})`,
                 borderColor: template.background_color,
                 fontFamily: template.font_family,
-                color: '#ffffff'
+                color: '#ffffff',
+                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.2)'
               }}
             >
               {profile.name ? profile.name.charAt(0).toUpperCase() : '?'}
@@ -488,18 +543,21 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
             </button>
           </div>
 
-          {/* Main Action Button */}
-          <div className="mb-8">
+          {/* Main Action Button - enhanced to match VCardTemplate.js */}
+          <div className="mb-8 flex justify-center w-full px-5">
             <a 
               href={`data:text/vcard;charset=UTF-8,BEGIN:VCARD%0AVERSION:3.0%0AFN:${encodeURIComponent(profile.name || '')}%0ATEL:${encodeURIComponent(profile.phone || '')}%0AEMAIL:${encodeURIComponent(profile.email || '')}%0AORG:${encodeURIComponent(profile.company || '')}%0ATITLE:${encodeURIComponent(profile.job_title || '')}%0AURL:${encodeURIComponent(profile.website || '')}%0AEND:VCARD`} 
               download={`${profile.name.replace(/\s+/g, '_')}.vcf`}
               onClick={importToContacts}
-              className="flex items-center justify-center py-3 px-6 rounded-lg w-full transition-transform hover:shadow-lg active:scale-95"
+              className="flex items-center justify-center py-4 px-8 rounded-full w-full max-w-[90%] transition-transform hover:shadow-lg active:scale-95"
               style={{ 
                 backgroundColor: template.primary_color,
                 color: getContrastingTextColor(template.primary_color),
                 fontFamily: template.font_family,
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                minHeight: '50px',
+                fontWeight: '600',
+                fontSize: '16px'
               }}
             >
               {isLoading ? (
@@ -517,79 +575,113 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
         </div>
       </div>
 
-      {/* Share Options Sheet with animation */}
+      {/* Share Options Sheet with animation - styled similar to VCardTemplate.js */}
       {shareOptionsVisible && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center" onClick={() => setShareOptionsVisible(false)}>
+        <div className="fixed inset-0 bg-black/55 z-50" onClick={() => setShareOptionsVisible(false)}>
           <div 
             ref={shareSheetRef}
-            className="bg-white rounded-t-xl w-full max-w-md p-6 transition-all duration-300 ease-in-out transform translate-y-full opacity-0"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl w-full max-w-md mx-auto p-6 transform translate-y-full opacity-0 shadow-lg"
             onClick={e => e.stopPropagation()}
-            style={{ transitionProperty: 'transform, opacity' }}
+            style={{ 
+              transitionProperty: 'transform, opacity',
+              zIndex: 100,
+              paddingBottom: '30px'
+            }}
           >
-            <h3 className="text-lg font-semibold mb-4">Share Contact</h3>
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            {/* Handle bar similar to VCardTemplate */}
+            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto my-2.5"></div>
+            
+            <h3 
+              className="text-lg font-semibold text-center mb-6"
+              style={{ 
+                fontFamily: template.font_family,
+                color: template.primary_color 
+              }}
+            >
+              Share Options
+            </h3>
+            
+            {/* Share options container - simplified to match VCardTemplate.js */}
+            <div className="flex justify-evenly px-5 mb-6">
+              {/* Save as vCard option */}
               <button 
-                className="flex flex-col items-center justify-center p-2"
+                className="flex flex-col items-center max-w-[40%]"
+                onClick={() => {
+                  setShareOptionsVisible(false);
+                  importToContacts();
+                }}
+              >
+                <div 
+                  className="w-15 h-15 rounded-full flex items-center justify-center mb-2.5"
+                  style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    backgroundColor: '#4CAF50' 
+                  }}
+                >
+                  <FiUserPlus size={26} color="white" />
+                </div>
+                <span 
+                  className="text-sm text-center"
+                  style={{ 
+                    fontFamily: template.font_family,
+                    color: template.primary_color 
+                  }}
+                >
+                  Save as vCard
+                </span>
+              </button>
+              
+              {/* Share Link option */}
+              <button 
+                className="flex flex-col items-center max-w-[40%]"
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
                   alert('Link copied to clipboard!');
                   setShareOptionsVisible(false);
                 }}
               >
-                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-1">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
+                <div 
+                  className="w-15 h-15 rounded-full flex items-center justify-center mb-2.5"
+                  style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    backgroundColor: '#2196F3' 
+                  }}
+                >
+                  <FiShare2 size={26} color="white" />
                 </div>
-                <span className="text-xs">Copy Link</span>
-              </button>
-              
-              <button 
-                className="flex flex-col items-center justify-center p-2"
-                onClick={() => {
-                  window.open(`https://wa.me/?text=${encodeURIComponent(`Check out ${profile.name}'s digital business card! ${window.location.href}`)}`, '_blank');
-                  setShareOptionsVisible(false);
-                }}
-              >
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-1">
-                  <FaWhatsapp className="text-green-600" />
-                </div>
-                <span className="text-xs">WhatsApp</span>
-              </button>
-              
-              <button 
-                className="flex flex-col items-center justify-center p-2"
-                onClick={() => {
-                  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
-                  setShareOptionsVisible(false);
-                }}
-              >
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-1">
-                  <FaFacebookF className="text-blue-600" />
-                </div>
-                <span className="text-xs">Facebook</span>
-              </button>
-              
-              <button 
-                className="flex flex-col items-center justify-center p-2"
-                onClick={() => {
-                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out ${profile.name}'s digital business card!`)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
-                  setShareOptionsVisible(false);
-                }}
-              >
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-1">
-                  <FaTwitter className="text-blue-400" />
-                </div>
-                <span className="text-xs">Twitter</span>
+                <span 
+                  className="text-sm text-center"
+                  style={{ 
+                    fontFamily: template.font_family,
+                    color: template.primary_color 
+                  }}
+                >
+                  Share Link
+                </span>
               </button>
             </div>
+            
+            {/* Cancel button - styled to match VCardTemplate.js */}
             <button 
-              className="w-full py-3 text-center text-gray-600 border-t border-gray-200"
+              className="w-full py-4 text-center font-medium text-red-600 border-t"
+              style={{ 
+                borderTopColor: template.separator_color,
+                fontFamily: template.font_family 
+              }}
               onClick={() => setShareOptionsVisible(false)}
             >
               Cancel
             </button>
           </div>
+        </div>
+      )}
+      
+      {/* Loading Overlay - added to match VCardTemplate.js */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-[200]">
+          <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: `${template.primary_color}40`, borderTopColor: 'transparent' }}></div>
         </div>
       )}
     </div>
