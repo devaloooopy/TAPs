@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import VCardComponent from '../../../components/VCardComponent';
-import { getProfileById, getSocialLinksById, getTemplateById } from '/Users/mac/Documents/TAP /TAPs/app/lib/supabase.js';
+import VCardComponent from '../../../components/VCardComponent.jsx';
+import { getProfileById, getSocialLinksById, getTemplateById } from '../../../lib/supabase.js';
 
 // Enable dynamic rendering for this route
 export const dynamic = 'force-dynamic';
