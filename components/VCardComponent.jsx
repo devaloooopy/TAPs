@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { FiPhone, FiMail, FiGlobe, FiMapPin, FiBriefcase, FiShare2, FiChevronLeft } from 'react-icons/fi';
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaGithub, FaYoutube, FaTiktok, FaTelegramPlane } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FiPhone, FiMail, FiGlobe, FiMapPin, FiBriefcase, FiShare2, FiChevronLeft, FiUserPlus, FiExternalLink, FiSend, FiLink } from 'react-icons/fi';
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaGithub, FaYoutube, FaTiktok, FaTelegramPlane, FaWhatsapp, FaSnapchatGhost, FaRedditAlien, FaDiscord, FaPinterestP, FaEtsy, FaBehance, FaWeixin, FaMediumM, FaPaypal, FaViber, FaSkype } from 'react-icons/fa';
 import { MdEmail, MdPhone, MdLocationOn } from 'react-icons/md';
 
 // Default template settings
@@ -16,6 +16,7 @@ const defaultTemplate = {
   layout_type: 'modern',
   font_family: 'system-ui, sans-serif',
   separator_color: '#e0e0e0',
+  enable_animations: true,
 };
 
 // Helper functions
@@ -63,9 +64,29 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     separator_color: rawProfile?.custom_separator_color || rawTemplate?.separator_color || defaultTemplate.separator_color,
   };
 
-  // State
+  // State and refs
   const [isLoading, setIsLoading] = useState(false);
   const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
+  const shareSheetRef = useRef(null);
+  
+  // Helper function to determine contrasting text color for backgrounds
+  const getContrastingTextColor = (bgColor) => {
+    if (!bgColor) return '#FFFFFF';
+    try {
+      const color = bgColor.startsWith('#') ? bgColor.substring(1) : bgColor;
+      const rgb = parseInt(color, 16);
+      const r = rgb >> 16 & 0xff;
+      const g = rgb >> 8 & 0xff;
+      const b = rgb >> 0 & 0xff;
+      // Formula for perceived brightness (Luma)
+      const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      // Use black text on light backgrounds, white text on dark backgrounds
+      return luma > 128 ? '#000000' : '#FFFFFF';
+    } catch (e) {
+      console.error('Error calculating contrast:', e);
+      return '#FFFFFF'; // Fallback to white on error
+    }
+  };
 
   // Effects
   useEffect(() => {
@@ -73,6 +94,19 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
+  
+  // Effect for share sheet animation
+  useEffect(() => {
+    if (shareSheetRef.current) {
+      if (shareOptionsVisible) {
+        shareSheetRef.current.style.transform = 'translateY(0)';
+        shareSheetRef.current.style.opacity = '1';
+      } else {
+        shareSheetRef.current.style.transform = 'translateY(100%)';
+        shareSheetRef.current.style.opacity = '0';
+      }
+    }
+  }, [shareOptionsVisible]);
 
   // Handlers
   const handleCall = (number) => number && window.open(`tel:${number}`, '_blank');
@@ -91,10 +125,10 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
       console.error('Map Error:', error);
     }
   };
-  const handleCopyText = async (text) => {
+  const handleCopyText = async (text, label = 'Text') => {
     try {
       await navigator.clipboard.writeText(text);
-      alert('Copied to clipboard!');
+      alert(`${label} copied to clipboard!`);
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
@@ -110,8 +144,22 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
       setShareOptionsVisible(!shareOptionsVisible);
     }
   };
+  const importToContacts = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate a delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 800));
+      // The actual download happens through the href attribute of the save button
+      alert(`${profile.name}'s contact has been saved to your device.`);
+    } catch (error) {
+      console.error('Error saving contact:', error);
+      alert('There was an error saving the contact.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Icon mapping
+  // Icon mapping - expanded to match VCardTemplate.js
   const getSocialIcon = (platform) => {
     const p = platform.toLowerCase();
     switch (p) {
@@ -128,7 +176,29 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
       case 'phone': return <MdPhone />;
       case 'email': return <MdEmail />;
       case 'map': return <MdLocationOn />;
-      default: return <FiGlobe />;
+      case 'whatsapp': return <FaWhatsapp />;
+      case 'snapchat': return <FaSnapchatGhost />;
+      case 'reddit': return <FaRedditAlien />;
+      case 'discord': return <FaDiscord />;
+      case 'pinterest': return <FaPinterestP />;
+      case 'etsy': return <FaEtsy />;
+      case 'behance': return <FaBehance />;
+      case 'wechat': return <FaWeixin />;
+      case 'medium': return <FaMediumM />;
+      case 'paypal': return <FaPaypal />;
+      case 'viber': return <FaViber />;
+      case 'skype': return <FaSkype />;
+      default: return <FiLink />;
+    }
+  };
+  
+  // Get icon action based on type
+  const getIconAction = (icon) => {
+    switch (icon) {
+      case 'phone': return <FiPhone />;
+      case 'mail': return <FiSend />;
+      case 'globe': return <FiExternalLink />;
+      default: return <FiChevronLeft />;
     }
   };
 
@@ -150,7 +220,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     </div>
   );
 
-  // Render info item
+  // Render info item with enhanced functionality
   const renderInfoItem = (icon, label, value, action, copyValue) => (
     <div 
       className="flex items-center p-4 mb-2 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
@@ -158,7 +228,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
         backgroundColor: template.background_color === '#ffffff' ? '#f8f9fc' : 'rgba(255,255,255,0.08)' 
       }}
       onClick={action}
-      onDoubleClick={() => handleCopyText(copyValue || value)}
+      onDoubleClick={() => handleCopyText(copyValue || value, label)}
     >
       <div 
         className="flex items-center justify-center w-10 h-10 rounded-full mr-4"
@@ -238,7 +308,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     </div>
   );
 
-  // Render social section
+  // Render social section with enhanced styling
   const renderSocialSection = () => {
     const socialLinks = profile?.social_links || [];
     if (!socialLinks || socialLinks.length === 0) return null;
@@ -249,6 +319,9 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
              style === 'rounded' ? '1.25rem' : 
              '50%';
     };
+    
+    // Animation classes based on template settings
+    const animationClass = template.enable_animations ? 'transition-transform hover:scale-105' : '';
 
     return (
       <div className="mb-6 rounded-lg overflow-hidden shadow-md" style={{ backgroundColor: template.background_color }}>
@@ -258,7 +331,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
             {socialLinks.map((link, index) => (
               <div 
                 key={index}
-                className="flex flex-col items-center justify-center p-2 hover:opacity-80 transition-opacity cursor-pointer"
+                className={`flex flex-col items-center justify-center p-2 hover:opacity-80 transition-all cursor-pointer ${animationClass}`}
                 onClick={() => handleWebsite(link.url)}
               >
                 <div 
@@ -420,19 +493,19 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
             <a 
               href={`data:text/vcard;charset=UTF-8,BEGIN:VCARD%0AVERSION:3.0%0AFN:${encodeURIComponent(profile.name || '')}%0ATEL:${encodeURIComponent(profile.phone || '')}%0AEMAIL:${encodeURIComponent(profile.email || '')}%0AORG:${encodeURIComponent(profile.company || '')}%0ATITLE:${encodeURIComponent(profile.job_title || '')}%0AURL:${encodeURIComponent(profile.website || '')}%0AEND:VCARD`} 
               download={`${profile.name.replace(/\s+/g, '_')}.vcf`}
-              className="flex items-center justify-center py-3 px-6 rounded-lg w-full"
+              onClick={importToContacts}
+              className="flex items-center justify-center py-3 px-6 rounded-lg w-full transition-transform hover:shadow-lg active:scale-95"
               style={{ 
                 backgroundColor: template.primary_color,
-                color: template.background_color,
-                fontFamily: template.font_family
+                color: getContrastingTextColor(template.primary_color),
+                fontFamily: template.font_family,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
               }}
             >
               {isLoading ? (
                 <div className="mr-2 w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
+                <FiUserPlus className="w-5 h-5 mr-2" />
               )}
               <span>Save Contact</span>
             </a>
@@ -444,12 +517,14 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
         </div>
       </div>
 
-      {/* Share Options Sheet */}
+      {/* Share Options Sheet with animation */}
       {shareOptionsVisible && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center" onClick={() => setShareOptionsVisible(false)}>
           <div 
-            className="bg-white rounded-t-xl w-full max-w-md p-6"
+            ref={shareSheetRef}
+            className="bg-white rounded-t-xl w-full max-w-md p-6 transition-all duration-300 ease-in-out transform translate-y-full opacity-0"
             onClick={e => e.stopPropagation()}
+            style={{ transitionProperty: 'transform, opacity' }}
           >
             <h3 className="text-lg font-semibold mb-4">Share Contact</h3>
             <div className="grid grid-cols-4 gap-4 mb-6">
@@ -477,7 +552,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
                 }}
               >
                 <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-1">
-                  <FaFacebookF className="text-green-600" />
+                  <FaWhatsapp className="text-green-600" />
                 </div>
                 <span className="text-xs">WhatsApp</span>
               </button>
