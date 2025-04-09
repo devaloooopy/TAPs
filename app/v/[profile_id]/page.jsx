@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import VCardComponent from '../../../components/VCardComponent.jsx';
 import { createClient } from '@supabase/supabase-js';
-import { generateVCard } from '../../../components/VCardComponent.jsx';
+import { generateVCard } from '../../../utils/vcard.js';
 
 // Create Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || 'https://twevckswrtmufxxbhega.supabase.co';
@@ -241,8 +241,8 @@ export default async function ProfilePage({ params, searchParams }) {
   );
 }
 
-// Create a custom not-found page component
-export function notFound() {
+// Create a custom not-found page component - renamed to avoid conflict
+export function CustomNotFoundPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center p-8 max-w-md bg-white rounded-lg shadow-md">
