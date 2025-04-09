@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import VCardComponent from '../../../components/VCardComponent.jsx';
+import VCardComponent from '../../../components/VCardComponent.js';
 import { getProfileById, getSocialLinksById, getTemplateById } from '../../../lib/supabase.js';
 
 // Enable dynamic rendering for this route
