@@ -309,7 +309,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
         {profile.phone && renderInfoItem(<FiPhone />, "Mobile", profile.phone, () => handleCall(profile.phone), profile.phone)}
         {profile.email && renderInfoItem(<FiMail />, "Email", profile.email, () => handleEmail(profile.email), profile.email)}
         {profile.website && renderInfoItem(<FiGlobe />, "Website", profile.website, () => handleWebsite(profile.website), profile.website)}
-        {profile.map_address && renderInfoItem(<FiMapPin />, "Address", formatMapAddress(profile.map_address), () => handleMapAddress(profile.map_address), formatMapAddress(profile.map_address))}
+        {profile.map_address && renderInfoItem(<FiMapPin />, "ADDRESS", `https://maps.app.goo.gl/${profile.map_address.substring(0, 5)}...`, () => handleMapAddress(profile.map_address), <span className="flex items-center"> <span>{`https://maps.app.goo.gl/${profile.map_address.substring(0, 5)}...`}</span><ChevronRight className="ml-2" /></span>)}
         
         {profile.company && (
           <div 
