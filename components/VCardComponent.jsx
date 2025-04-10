@@ -19,9 +19,21 @@ const defaultTemplate = {
   enable_animations: true,
 };
 
-// Helper functions
+// Helper functions - Updated to handle Google Maps shortened URLs
 const formatMapAddress = (addr) => addr || '';
-const createMapUrl = (addr) => addr ? `https://maps.google.com/?q=${encodeURIComponent(addr)}` : null;
+const createMapUrl = (addr) => {
+  if (!addr) return null;
+  
+  // Check if the address is already a Google Maps URL (including shortened URLs)
+  if (addr.startsWith('http://') || addr.startsWith('https://')) {
+    if (addr.includes('maps.google.com') || addr.includes('maps.app.goo.gl') || addr.includes('goo.gl/maps')) {
+      return addr; // Return the URL as is
+    }
+  }
+  
+  // Otherwise, create a new Google Maps URL from the address
+  return `https://maps.google.com/?q=${encodeURIComponent(addr)}`;
+};
 
 const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) => {
   // Default profile data if none is provided
@@ -138,6 +150,8 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     const safeUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
     window.open(safeUrl, '_blank');
   };
+  
+  // Updated handleMapAddress function to work with shortened URLs
   const handleMapAddress = (address) => {
     if (!address) return;
     try {
@@ -147,6 +161,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
       console.error('Map Error:', error);
     }
   };
+  
   const handleCopyText = async (text, label = 'Text') => {
     try {
       await navigator.clipboard.writeText(text);
@@ -309,7 +324,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
         {profile.phone && renderInfoItem(<FiPhone />, "Mobile", profile.phone, () => handleCall(profile.phone), profile.phone)}
         {profile.email && renderInfoItem(<FiMail />, "Email", profile.email, () => handleEmail(profile.email), profile.email)}
         {profile.website && renderInfoItem(<FiGlobe />, "Website", profile.website, () => handleWebsite(profile.website), profile.website)}
-        {profile.map_address && renderInfoItem(<FiMapPin />, "ADDRESS", profile.location_name || "Location Name", () => handleMapAddress(profile.map_address), <div className="flex items-center justify-between w-full"><span>{profile.location_name || "Location Name"}</span><FiChevronRight className="ml-2" /></div>)}
+        {profile.map_address && renderInfoItem(<FiMapPin />, "ADDRESS", profile.location_name || "Location", () => handleMapAddress(profile.map_address), profile.map_address)}
         
         {profile.company && (
           <div 
