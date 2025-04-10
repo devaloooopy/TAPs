@@ -231,7 +231,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
       style={{ backgroundColor: template.primary_color }}
     >
       <h3 
-        className="text-lg font-semibold" 
+        className="text-lg font-semibold text-center" 
         style={{ 
           fontFamily: template.font_family,
           color: template.background_color 
@@ -276,6 +276,14 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
           {label}
         </div>
       </div>
+      {action && (
+        <div className="flex items-center justify-center">
+          {React.cloneElement(getIconAction(icon.type.name.toLowerCase().includes('phone') ? 'phone' : 
+                                           icon.type.name.toLowerCase().includes('mail') ? 'mail' : 
+                                           icon.type.name.toLowerCase().includes('globe') ? 'globe' : 'default'), 
+                             { size: 20, color: template.primary_color })}
+        </div>
+      )}
     </div>
   );
 
@@ -552,7 +560,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
               className="flex items-center justify-center py-4 px-8 rounded-full w-full max-w-[90%] transition-transform hover:shadow-lg active:scale-95"
               style={{ 
                 backgroundColor: template.primary_color,
-                color: getContrastingTextColor(template.primary_color),
+                color: template.background_color,
                 fontFamily: template.font_family,
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
                 minHeight: '50px',
@@ -561,9 +569,9 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
               }}
             >
               {isLoading ? (
-                <div className="mr-2 w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" />
+                <div className="mr-2 w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: template.background_color }} />
               ) : (
-                <FiUserPlus className="w-5 h-5 mr-2" />
+                <FiUserPlus className="w-5 h-5 mr-2" color={template.background_color} />
               )}
               <span>Save Contact</span>
             </a>
