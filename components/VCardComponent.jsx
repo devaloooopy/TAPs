@@ -625,7 +625,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
               borderTop: `1px solid ${template.separator_color}`,
               marginTop: '10px'
             }}>
-            Created with <a href="https://tapconnect.com" target="_blank" style={{ color: template.primary_color, textDecoration: 'none' }}>TapConnect</a>
+            Created with <a href="https://tapconnect.com" target="_blank" style={{ color: template.primary_color, textDecoration: 'none' }}><strong>TapConnect</strong></a>
           </div>
         </div>
       </div>
