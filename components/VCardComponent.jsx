@@ -306,10 +306,10 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     }}>
       {renderCardHeader("Details")}
       <div className="p-4">
-        {profile.phone && renderInfoItem(<MdPhone />, "Mobile", profile.phone, () => handleCall(profile.phone), profile.phone)}
-        {profile.email && renderInfoItem(<MdEmail />, "Email", profile.email, () => handleEmail(profile.email), profile.email)}
+        {profile.phone && renderInfoItem(<FiPhone />, "Mobile", profile.phone, () => handleCall(profile.phone), profile.phone)}
+        {profile.email && renderInfoItem(<FiMail />, "Email", profile.email, () => handleEmail(profile.email), profile.email)}
         {profile.website && renderInfoItem(<FiGlobe />, "Website", profile.website, () => handleWebsite(profile.website), profile.website)}
-        {profile.map_address && renderInfoItem(<MdLocationOn />, "Address", formatMapAddress(profile.map_address), () => handleMapAddress(profile.map_address), formatMapAddress(profile.map_address))}
+        {profile.map_address && renderInfoItem(<FiMapPin />, "Address", formatMapAddress(profile.map_address), () => handleMapAddress(profile.map_address), formatMapAddress(profile.map_address))}
         
         {profile.company && (
           <div 
