@@ -224,17 +224,22 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     }
   };
 
-  // Render card header
+  // Render card header - enhanced to match VCardTemplate.js
   const renderCardHeader = (title) => (
     <div 
-      className="p-3 rounded-t-lg" 
-      style={{ backgroundColor: template.primary_color }}
+      className="p-3 rounded-t-lg shadow-sm" 
+      style={{ 
+        backgroundColor: template.primary_color,
+        borderTopLeftRadius: '8px',
+        borderTopRightRadius: '8px'
+      }}
     >
       <h3 
         className="text-lg font-semibold text-center" 
         style={{ 
           fontFamily: template.font_family,
-          color: template.background_color 
+          color: template.background_color,
+          letterSpacing: '0.01em'
         }}
       >
         {title}
@@ -242,7 +247,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
     </div>
   );
 
-  // Render info item with enhanced functionality
+  // Render info item with enhanced functionality - matching VCardTemplate.js
   const renderInfoItem = (icon, label, value, action, copyValue) => (
     <div 
       className="flex items-center p-4 mb-2 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
@@ -278,16 +283,19 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
       </div>
       {action && (
         <div className="flex items-center justify-center">
-          {React.cloneElement(getIconAction(icon.type.name.toLowerCase().includes('phone') ? 'phone' : 
-                                           icon.type.name.toLowerCase().includes('mail') ? 'mail' : 
-                                           icon.type.name.toLowerCase().includes('globe') ? 'globe' : 'default'), 
-                             { size: 20, color: template.primary_color })}
+          {icon.type.name.toLowerCase().includes('phone') ? 
+            <FiPhone size={20} color={template.primary_color} /> : 
+           icon.type.name.toLowerCase().includes('mail') ? 
+            <FiSend size={20} color={template.primary_color} /> : 
+           icon.type.name.toLowerCase().includes('globe') ? 
+            <FiExternalLink size={20} color={template.primary_color} /> : 
+            <FiChevronLeft size={20} color={template.primary_color} />}
         </div>
       )}
     </div>
   );
 
-  // Render details section
+  // Render details section - enhanced to match VCardTemplate.js
   const renderDetailsSection = () => (
     <div className="mb-6 rounded-lg overflow-hidden shadow-md" style={{ backgroundColor: template.background_color }}>
       {renderCardHeader("Details")}
@@ -304,21 +312,39 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
               backgroundColor: template.background_color === '#ffffff' ? '#f8f9fc' : 'rgba(255,255,255,0.08)' 
             }}
           >
-            <FiBriefcase size={18} color={template.primary_color} className="mr-3" />
-            <span 
-              style={{ 
-                color: template.primary_color, 
-                fontFamily: template.font_family 
-              }}
+            <div 
+              className="flex items-center justify-center w-10 h-10 rounded-full mr-4"
+              style={{ backgroundColor: `${template.primary_color}20` }}
             >
-              {profile.company}
-            </span>
+              <FiBriefcase size={20} color={template.primary_color} />
+            </div>
+            <div className="flex-1">
+              <div 
+                className="text-lg font-medium"
+                style={{ 
+                  color: template.primary_color, 
+                  fontFamily: template.font_family 
+                }}
+              >
+                {profile.company}
+              </div>
+              <div 
+                className="text-sm"
+                style={{ 
+                  fontFamily: template.font_family, 
+                  color: template.primary_color, 
+                  opacity: 0.7 
+                }}
+              >
+                Company
+              </div>
+            </div>
           </div>
         )}
         
         {profile.bio && (
           <div 
-            className="p-4 rounded-lg"
+            className="p-4 rounded-lg mt-3"
             style={{ 
               backgroundColor: template.background_color === '#ffffff' ? '#f8f9fc' : 'rgba(255,255,255,0.08)' 
             }}
@@ -327,7 +353,8 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
               className="text-sm leading-relaxed"
               style={{ 
                 color: template.primary_color, 
-                fontFamily: template.font_family 
+                fontFamily: template.font_family,
+                lineHeight: '1.6'
               }}
             >
               {profile.bio}
@@ -580,6 +607,19 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
           {/* Render Sections */}
           {renderDetailsSection()}
           {renderSocialSection()}
+          
+          {/* Footer */}
+          <div className="footer" style={{
+              textAlign: 'center',
+              padding: '20px',
+              fontSize: '12px',
+              color: template.primary_color,
+              opacity: 0.7,
+              borderTop: `1px solid ${template.separator_color}`,
+              marginTop: '10px'
+            }}>
+            Created with <a href="https://tapconnect.com" target="_blank" style={{ color: template.primary_color, textDecoration: 'none' }}>TapConnect</a>
+          </div>
         </div>
       </div>
 
