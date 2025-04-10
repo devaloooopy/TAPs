@@ -151,51 +151,41 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
   );
 
   // Render info item
-  const renderInfoItem = (icon, label, value, action, copyValue) => {
-    // Check if this is an address item to show chevron right icon
-    const isAddressItem = label === "Address";
-    
-    return (
+  const renderInfoItem = (icon, label, value, action, copyValue) => (
+    <div 
+      className="flex items-center p-4 mb-2 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+      style={{ 
+        backgroundColor: template.background_color === '#ffffff' ? '#f8f9fc' : 'rgba(255,255,255,0.08)' 
+      }}
+      onClick={action}
+      onDoubleClick={() => handleCopyText(copyValue || value)}
+    >
       <div 
-        className="flex items-center p-4 mb-2 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-        style={{ 
-          backgroundColor: template.background_color === '#ffffff' ? '#f8f9fc' : 'rgba(255,255,255,0.08)' 
-        }}
-        onClick={action}
-        onDoubleClick={() => handleCopyText(copyValue || value)}
+        className="flex items-center justify-center w-10 h-10 rounded-full mr-4"
+        style={{ backgroundColor: `${template.primary_color}20` }}
       >
-        <div 
-          className="flex items-center justify-center w-10 h-10 rounded-full mr-4"
-          style={{ backgroundColor: `${template.primary_color}20` }}
-        >
-          {React.cloneElement(icon, { size: 20, color: template.primary_color })}
-        </div>
-        <div className="flex-1">
-          <div 
-            className="text-lg font-medium truncate"
-            style={{ color: template.primary_color, fontFamily: template.font_family }}
-          >
-            {value}
-          </div>
-          <div 
-            className="text-sm"
-            style={{ 
-              fontFamily: template.font_family, 
-              color: template.primary_color, 
-              opacity: 0.7 
-            }}
-          >
-            {label}
-          </div>
-        </div>
-        {isAddressItem && (
-          <div className="ml-2">
-            <FiChevronLeft size={20} color={template.primary_color} style={{ transform: 'rotate(180deg)' }} />
-          </div>
-        )}
+        {React.cloneElement(icon, { size: 20, color: template.primary_color })}
       </div>
-    );
-  };
+      <div className="flex-1">
+        <div 
+          className="text-lg font-medium truncate"
+          style={{ color: template.primary_color, fontFamily: template.font_family }}
+        >
+          {value}
+        </div>
+        <div 
+          className="text-sm"
+          style={{ 
+            fontFamily: template.font_family, 
+            color: template.primary_color, 
+            opacity: 0.7 
+          }}
+        >
+          {label}
+        </div>
+      </div>
+    </div>
+  );
 
   // Render details section
   const renderDetailsSection = () => (
