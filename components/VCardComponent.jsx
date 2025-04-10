@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { FiPhone, FiMail, FiGlobe, FiMapPin, FiBriefcase, FiShare2, FiChevronLeft, FiUserPlus, FiExternalLink, FiSend, FiLink } from 'react-icons/fi';
+import { FiPhone, FiMail, FiGlobe, FiMapPin, FiBriefcase, FiShare2, FiChevronLeft, FiUserPlus, FiExternalLink, FiSend, FiLink, FiChevronRight } from 'react-icons/fi';
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaGithub, FaYoutube, FaTiktok, FaTelegramPlane, FaWhatsapp, FaSnapchatGhost, FaRedditAlien, FaDiscord, FaPinterestP, FaEtsy, FaBehance, FaWeixin, FaMediumM, FaPaypal, FaViber, FaSkype } from 'react-icons/fa';
 import { MdEmail, MdPhone, MdLocationOn } from 'react-icons/md';
 
@@ -283,13 +283,15 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
       </div>
       {action && (
         <div className="flex items-center justify-center">
-          {icon.type.name.toLowerCase().includes('phone') ? 
+          {icon.type === FiPhone || icon.type.name === 'MdPhone' ? 
             <FiPhone size={20} color={template.primary_color} /> : 
-           icon.type.name.toLowerCase().includes('mail') ? 
+           icon.type === FiMail || icon.type.name === 'MdEmail' ? 
             <FiSend size={20} color={template.primary_color} /> : 
-           icon.type.name.toLowerCase().includes('globe') ? 
+           icon.type === FiGlobe ? 
             <FiExternalLink size={20} color={template.primary_color} /> : 
-            <FiChevronLeft size={20} color={template.primary_color} />}
+           icon.type === FiMapPin || icon.type.name === 'MdLocationOn' ? 
+            <FiChevronRight size={20} color={template.primary_color} /> : 
+            <FiChevronRight size={20} color={template.primary_color} />}
         </div>
       )}
     </div>
