@@ -227,19 +227,19 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
   // Render card header - enhanced to match VCardTemplate.js
   const renderCardHeader = (title) => (
     <div 
-      className="p-3 rounded-t-lg shadow-sm" 
+      className="py-3.5 px-5 rounded-t-lg shadow-sm" 
       style={{ 
         backgroundColor: template.primary_color,
-        borderTopLeftRadius: '8px',
-        borderTopRightRadius: '8px'
+        borderTopLeftRadius: '20px',
+        borderTopRightRadius: '20px'
       }}
     >
       <h3 
-        className="text-lg font-semibold text-center" 
+        className="text-base font-bold text-center uppercase tracking-wider" 
         style={{ 
           fontFamily: template.font_family,
           color: template.background_color,
-          letterSpacing: '0.01em'
+          letterSpacing: '0.08em'
         }}
       >
         {title}
@@ -299,7 +299,11 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
 
   // Render details section - enhanced to match VCardTemplate.js
   const renderDetailsSection = () => (
-    <div className="mb-6 rounded-lg overflow-hidden shadow-md" style={{ backgroundColor: template.background_color }}>
+    <div className="mb-6 rounded-lg overflow-hidden shadow-md" style={{ 
+      backgroundColor: template.background_color,
+      borderRadius: '20px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.12)'
+    }}>
       {renderCardHeader("Details")}
       <div className="p-4">
         {profile.phone && renderInfoItem(<FiPhone />, "Mobile", profile.phone, () => handleCall(profile.phone), profile.phone)}
@@ -391,6 +395,7 @@ const VCardComponent = ({ profile: rawProfile, template: rawTemplate, onBack }) 
         className="mb-6 rounded-lg overflow-hidden shadow-md" 
         style={{ 
           backgroundColor: template.background_color,
+          borderRadius: '20px',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.12)'
         }}
       >
